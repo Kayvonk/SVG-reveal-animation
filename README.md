@@ -2,6 +2,8 @@
 
 A page reveal animation that uncovers content through expanding circular holes in a black overlay.
 
+Deployed Link: https://kayvonk.github.io/SVG-reveal-animation/
+
 ---
 
 ## How It Looks
