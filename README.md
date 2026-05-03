@@ -1,4 +1,4 @@
-# Canvas Reveal Animation
+# SVG Reveal Animation
 
 A page reveal animation that uncovers content through expanding circular holes in a black overlay.
 
@@ -6,7 +6,7 @@ A page reveal animation that uncovers content through expanding circular holes i
 
 ## How It Looks
 
-When the page loads, a solid black layer covers everything. Five circles — clustered near the center of the screen — begin to grow outward in quick succession, punching transparent holes through the black layer. Because the holes grow and overlap, the black recedes naturally, revealing the page content underneath. Once the circles are large enough to cover the entire screen, the black overlay fades out and is removed from the page.
+When the page loads, a solid black layer covers everything. Five circles — clustered near the center of the screen — begin to grow outward in quick succession, punching transparent holes through the black layer. As the holes grow and overlap, the black recedes naturally, revealing the page content underneath. Once the circles are large enough to cover the entire screen, the black overlay fades out and is removed from the page.
 
 ---
 
@@ -14,64 +14,62 @@ When the page loads, a solid black layer covers everything. Five circles — clu
 
 | File | Role |
 |---|---|
-| `index.html` | Page shell — text content + the `<canvas id="overlay">` element |
-| `style.css` | Positions the canvas as a fixed full-screen overlay; defines the `.done` fade-out transition |
+| `index.html` | Page shell — content, the SVG overlay, and the mask definition |
+| `style.css` | Positions the SVG overlay full-screen; defines the fade-out transition |
 | `script.js` | Self-executing animation — owns the render loop, timing, easing, and cleanup |
 
 ---
 
 ## How the Animation Works
 
-### What Is the Canvas?
+### The Black Layer
 
-The `<canvas>` element is an HTML element that lets JavaScript draw graphics directly — shapes, images, colors — pixel by pixel. Think of it as a blank drawing surface sitting on top of your page. In this project, the canvas is stretched to cover the entire screen, and JavaScript draws on it every frame to produce the animation.
+The overlay is an `<svg>` element stretched to cover the entire screen. Inside it sits a single black rectangle that fills the SVG from edge to edge:
+
+```html
+<svg id="overlay">
+  ...
+  <rect width="100%" height="100%" fill="black" mask="url(#reveal)"/>
+</svg>
+```
+
+On its own, this rectangle would simply cover the entire page. What makes it behave like an overlay with holes is the `mask` attribute.
 
 ---
 
-### The Black Layer With Growing Holes
+### What Is an SVG Mask?
 
-To create the effect, two drawing steps happen back-to-back on every frame:
+An SVG mask is a hidden definition that tells the browser which parts of an element to show and which to hide. You can think of it like a stencil placed over the black rectangle:
 
-**Step 1 — Fill the entire canvas black.**
+- **White areas** in the mask = show that part of the element (the rectangle stays black)
+- **Black areas** in the mask = hide that part of the element (the rectangle becomes transparent — a hole)
 
-```js
-ctx.globalCompositeOperation = 'source-over';
-ctx.fillStyle = 'black';
-ctx.fillRect(0, 0, W, H);
+The mask used here starts as a solid white rectangle covering the entire screen, with five black circles on top of it:
+
+```html
+<mask id="reveal" maskUnits="userSpaceOnUse">
+  <rect id="reveal-bg" fill="white"/>   <!-- show the overlay everywhere -->
+  <circle id="rc0" fill="black"/>       <!-- punch a hole here -->
+  <circle id="rc1" fill="black"/>
+  ...
+</mask>
 ```
 
-This paints a solid black rectangle over the whole canvas, hiding the page content underneath.
+At the start, all five circles have a radius of zero — they're invisible — so the mask is entirely white and the black overlay covers the whole page. As the circles grow, their black areas in the mask grow with them, making those regions of the overlay transparent. The page content underneath shows through the holes.
 
-**Step 2 — Cut holes where the circles are.**
-
-```js
-ctx.globalCompositeOperation = 'destination-out';
-// for each circle:
-ctx.arc(x, y, radius, 0, Math.PI * 2);
-ctx.fill();
-```
-
-Normally, drawing on a canvas adds paint on top of what's already there. The `destination-out` mode flips that: instead of adding color, drawing **removes** pixels, making them fully transparent. So each filled circle acts like a hole punch — it carves a see-through gap in the black layer, exposing the page content beneath.
-
-Where two circles overlap, their holes simply merge. There's no special logic needed for this — transparent pixels are just transparent, regardless of how many circles contributed to them. As the circles grow frame by frame, the holes expand until the entire black layer is gone.
+Where circles overlap, their holes simply merge. The browser handles this naturally — a transparent region is transparent, no matter how many circles contributed to it.
 
 ---
 
-### The Render Loop
+### No Per-Frame Drawing
 
-Animations on the web work by drawing a new frame many times per second — typically 60 times. Each frame is a complete redraw from scratch. `requestAnimationFrame` is the browser's built-in way to ask: "call this function the next time you're about to draw a frame."
+Unlike a canvas-based approach, nothing is redrawn every frame. The browser keeps the SVG mask in memory and re-evaluates it automatically. The only thing JavaScript does each frame is update the `r` (radius) attribute on each circle:
 
-`script.js` uses it to run this sequence repeatedly:
-
-```
-1. clearRect()                    — erase everything from the previous frame
-2. fillRect() black               — paint the black layer fresh
-3. destination-out circles        — cut holes at each circle's current size
-4. check if animation is done     — if all circles are fully grown, start the fade-out
-5. requestAnimationFrame(tick)    — schedule this same function to run again next frame
+```js
+svgCircle.setAttribute('r', currentRadius);
 ```
 
-Redrawing everything from scratch each frame keeps the black layer and all circles perfectly in sync with wherever the animation is at that moment.
+That single attribute change is enough for the browser to recompose the entire effect on the GPU.
 
 ---
 
@@ -122,7 +120,7 @@ The result feels punchy and natural rather than robotic.
 MAX_R = Math.ceil(Math.sqrt(W * W + H * H))
 ```
 
-Each circle grows until its radius equals the diagonal length of the screen — the distance from one corner to the opposite corner. This is the longest possible distance from the center of the screen to any point on the screen. Using this as the maximum radius guarantees that every circle will fully cover every corner by the time the animation ends, even if a circle's center is slightly off-center.
+Each circle grows until its radius equals the diagonal length of the screen — the distance from one corner to the opposite corner. This is the longest possible distance from any point near the center to any edge of the screen. Using this as the maximum radius guarantees that every circle will fully cover every corner by the time the animation ends, regardless of where the circle's center sits.
 
 ---
 
@@ -130,8 +128,8 @@ Each circle grows until its radius equals the diagonal length of the screen — 
 
 Once all five circles have reached their maximum size, the animation ends in two stages:
 
-1. **Fade out** — the `.done` class is added to the canvas, which triggers a CSS `opacity: 0` transition over 2 seconds.
-2. **Remove from the page** — once the fade finishes, the canvas element is deleted from the DOM entirely. An invisible element still consumes memory on the GPU, so removing it keeps things clean.
+1. **Fade out** — the `.done` class is added to the SVG, which triggers a CSS `opacity: 0` transition over 2 seconds.
+2. **Remove from the page** — once the fade finishes, the SVG element is deleted from the DOM entirely. An invisible element still occupies memory, so removing it keeps things clean.
 
 ---
 
@@ -139,9 +137,10 @@ Once all five circles have reached their maximum size, the animation ends in two
 
 | Decision | Reason |
 |---|---|
-| `destination-out` instead of `clip-path` | Overlapping circle holes merge automatically — no geometry calculations needed |
+| SVG `<mask>` instead of canvas | The browser composites the mask on the GPU — no per-frame redrawing in JavaScript |
+| White background + black circles in the mask | White = keep, black = hole; this is how SVG masks are designed to work |
 | Viewport diagonal as `MAX_R` | Guarantees full-screen coverage regardless of where circles are centered |
-| Staggered delays (~120 ms apart) | Creates a cascading burst effect from a single region |
+| Staggered delays (~130 ms apart) | Creates a cascading burst effect from a single region |
 | `performance.now()` for timing | Precise timing that stays consistent across different frame rates |
-| DOM removal after fade | Prevents an invisible canvas from consuming GPU memory after the animation |
+| DOM removal after fade | Prevents an invisible SVG from consuming memory after the animation |
 | IIFE encapsulation | All animation state is private — nothing leaks into the global scope |
