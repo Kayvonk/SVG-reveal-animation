@@ -1,4 +1,4 @@
-# Clipbox
+# Canvas Reveal Animation
 
 A page reveal animation that uncovers content through expanding circular holes in a black overlay.
 
