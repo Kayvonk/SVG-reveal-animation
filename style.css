@@ -1,0 +1,53 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  background: #f0ede8;
+  color: #111;
+}
+
+/* ── Sample page content ─────────────────────────────────────────────── */
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  gap: 1rem;
+  padding: 2rem;
+  text-align: center;
+}
+
+.content h1 {
+  font-size: clamp(2.5rem, 8vw, 6rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.content p {
+  font-size: 1.125rem;
+  color: #666;
+}
+
+/* ── Overlay ─────────────────────────────────────────────────────────── */
+
+#overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  display: block;
+  pointer-events: none;
+
+  /* Triggered by JS adding .done once all circles finish expanding */
+  transition: opacity 2s ease;
+}
+
+#overlay.done {
+  opacity: 0;
+}

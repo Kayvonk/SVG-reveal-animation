@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Page Load Animation</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Page content sits beneath the overlay -->
+  <main class="content">
+    <h1>Hello, World.</h1>
+    <p>Revealed through expanding circles.</p>
+  </main>
+
+  <!--
+    Canvas overlay: JS fills it black each frame, then uses destination-out
+    compositing to erase circles. Overlapping circles naturally union into a
+    single hole — no clip-path winding rules involved.
+  -->
+  <canvas id="overlay" aria-hidden="true"></canvas>
+
+  <script src="script.js"></script>
+</body>
+</html>
