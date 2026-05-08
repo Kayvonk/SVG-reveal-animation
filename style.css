@@ -38,11 +38,13 @@ body {
 /* ── SVG overlay ─────────────────────────────────────────────────────── */
 
 @keyframes grow {
-  from { r: 0; }
-  to   { r: 150vmax; }
+  from { transform: scale(0); }
+  to   { transform: scale(1); }
 }
 
 #rc0 {
+  transform-box: fill-box;
+  transform-origin: center;
   animation: grow 6s ease-out forwards;
 }
 
