@@ -1,16 +1,11 @@
-*,
-*::before,
-*::after {
+*, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
 body {
-  font-family:
-    system-ui,
-    -apple-system,
-    sans-serif;
+  font-family: system-ui, -apple-system, sans-serif;
   background: #24b2bd;
   color: #111;
 }
@@ -43,61 +38,30 @@ body {
 /* ── SVG overlay ─────────────────────────────────────────────────────── */
 
 @keyframes load-rc0 {
-  0% {
-    transform: translateX(0);
-    animation-timing-function: ease-in-out;
-    r: 10%;
-  }
-  20% {
-    transform: translateX(20vw);
-    animation-timing-function: ease-in-out;
-    r: 10%;
-  }
-  40% {
-    transform: translateX(0);
-    animation-timing-function: ease-out;
-    r: 10%;
-  }
-  100% {
-    transform: translateX(0);
-    r: 150vw;
-  }
+  0%    { transform: translateX(0)     scale(1); animation-timing-function: ease-in-out; }
+  12.5% { transform: translateX(20vw)  scale(1); animation-timing-function: ease-in-out; }
+  25% { transform: translateX(0)  scale(1); animation-timing-function: ease-in-out; }
+  37.5% { transform: translateX(20vw)  scale(1); animation-timing-function: ease-in-out; }
+  50%   { transform: translateX(0)     scale(1); animation-timing-function: ease-out; }
+  100%  { transform: translateX(0)     scale(10); }
 }
 
 @keyframes load-rc1 {
-  0% {
-    transform: translateX(0);
-    animation-timing-function: ease-in-out;
-    r: 10%;
-  }
-  20% {
-    transform: translateX(-20vw);
-    animation-timing-function: ease-in-out;
-    r: 10%;
-  }
-  40% {
-    transform: translateX(0);
-    animation-timing-function: ease-out;
-    r: 10%;
-  }
-  100% {
-    transform: translateX(0);
-    r: 150vw;
-  }
+  0%    { transform: translateX(0)     scale(1); animation-timing-function: ease-in-out; }
+  12.5% { transform: translateX(-20vw)  scale(1); animation-timing-function: ease-in-out; }
+  25% { transform: translateX(0)  scale(1); animation-timing-function: ease-in-out; }
+  37.5% { transform: translateX(-20vw)  scale(1); animation-timing-function: ease-in-out; }
+  50%   { transform: translateX(0)     scale(1); animation-timing-function: ease-out; }
+  100%  { transform: translateX(0)     scale(10); }
 }
 
-#rc0,
-#rc1 {
+#rc0, #rc1 {
   transform-box: fill-box;
   transform-origin: center;
 }
 
-#rc0 {
-  animation: load-rc0 8s forwards;
-}
-#rc1 {
-  animation: load-rc1 8s forwards;
-}
+#rc0 { animation: load-rc0 8s forwards; }
+#rc1 { animation: load-rc1 8s forwards; }
 
 #overlay {
   position: fixed;
