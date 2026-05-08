@@ -37,16 +37,27 @@ body {
 
 /* ── SVG overlay ─────────────────────────────────────────────────────── */
 
-@keyframes grow {
-  from { transform: scale(0); }
-  to   { transform: scale(1); }
+@keyframes load-rc0 {
+  0%    { transform: translateX(0)     scale(0.05); animation-timing-function: ease-in-out; }
+  20% { transform: translateX(20vw)  scale(0.05); animation-timing-function: ease-in-out; }
+  40%   { transform: translateX(0)     scale(0.05); animation-timing-function: ease-out; }
+  100%  { transform: translateX(0)     scale(1); }
 }
 
-#rc0 {
+@keyframes load-rc1 {
+  0%    { transform: translateX(0)     scale(0.05); animation-timing-function: ease-in-out; }
+  20% { transform: translateX(-20vw) scale(0.05); animation-timing-function: ease-in-out; }
+  40%   { transform: translateX(0)     scale(0.05); animation-timing-function: ease-out; }
+  100%  { transform: translateX(0)     scale(1); }
+}
+
+#rc0, #rc1 {
   transform-box: fill-box;
   transform-origin: center;
-  animation: grow 6s ease-out forwards;
 }
+
+#rc0 { animation: load-rc0 8s forwards; }
+#rc1 { animation: load-rc1 8s forwards; }
 
 #overlay {
   position: fixed;
