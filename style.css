@@ -37,6 +37,15 @@ body {
 
 /* ── SVG overlay ─────────────────────────────────────────────────────── */
 
+@keyframes grow {
+  from { r: 0; }
+  to   { r: 150vmax; }
+}
+
+#rc0 {
+  animation: grow 6s ease-out forwards;
+}
+
 #overlay {
   position: fixed;
   inset: 0;
@@ -44,9 +53,5 @@ body {
   height: 100%;
   z-index: 999;
   pointer-events: none;
-  transition: opacity 2s ease;
-}
-
-#overlay.done {
-  opacity: 0;
+  transition: opacity 0.6s ease;
 }
